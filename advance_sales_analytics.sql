@@ -8,6 +8,8 @@ select
  where order_date is not null
  group by datetrunc(month,order_date)
  order by datetrunc(month,order_date)
+ /*=========================================================*/
+ 
  /*total sales by year wise*/
 select
  year(order_date),
@@ -18,6 +20,8 @@ select
  where year(order_date) is not null
  group by year(order_date)
  order by year(order_date)
+ /*=========================================================*/
+
  /*total sales by month wise*/
  select
  month(order_date) as month,
@@ -28,6 +32,7 @@ select
  where month(order_date) is not null
  group by month(order_date)
  order by month(order_date)
+ /*=========================================================*/
 
  /*cumulative analysis
  Aggregate the data progressively over time*/
@@ -45,13 +50,12 @@ select
    total_sales,
    sum(total_sales)over(partition by year(order_date) order by order_date)as running_total,
    avg(avg_price)over(partition by year(order_date) order by order_date)as moving_avg
-from cumulative_sales*/
+ from cumulative_sales
+ /*=========================================================*/
 
 /*performance analysis
 comparing the current value to a target value
 helps measure success and compare performance*/
-
-
 with performance_sales as (
 select
    year(f.order_date) as order_year,
@@ -79,7 +83,8 @@ select
        when (total_sales-lag(total_sales)over(partition by product_name order by order_year ))<0 then 'Decreased'
        else 'Null'
 end as previous_sales_bucket
-from performance_sales */
+from performance_sales 
+ /*=========================================================*/
 
 /*part to whole analysis
 Analyze how an individual part is performing compared to the overall,
@@ -102,6 +107,7 @@ select
 concat(round((cast(total_sales as float)/sum(total_sales)over())*100,2),'%')as per_total
 from category_sales
 order by per_total desc
+ /*=========================================================*/
 
 /*data segmnetation 
 group the data based on a specific range
@@ -123,6 +129,7 @@ helps understand the correlation between two measures*/
    from product_segment
    group by cost_range
    order by total_products desc
+ /*=========================================================*/
 
 /* group customers by their spending behavior:
 ----VIP:at least 12 months of history and spending more than 5000.
@@ -151,6 +158,7 @@ select
   from customer_segmentation
 group by customers_segment
 order by total_customers desc 
+ /*=========================================================*/
 
 /*
 ==================================================================
@@ -242,10 +250,4 @@ select
        else total_sales/lifespan
  end as avg_monthly_spend
  from customer_segmentation
-
-
-
-
-
-
- 
+/*=========================================================*/
